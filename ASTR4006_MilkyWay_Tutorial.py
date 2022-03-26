@@ -144,18 +144,28 @@ coordinates = coord.SkyCoord(
 
 # In addition to the position of the Galactic Centre in (RA,Dec), we also have to give some information
 # on the position and motion of the Sun relative to it
-# astropy has its own default values of:
-# galcen_coord = (266.4051, -28.936175) deg in RA,Dec
-# galcen_distance = 8.3*u.kpc - but we have recent measurements of the distance of the Milky Way's Black Hole that are better
-# z_sun=27*u.pc, but
-# galcen_v_sun = [11.1, 232.24, 7.25]*u.km/u.s, which are defined in Cartesian coordinates;
-# These values are a combination of the circular velocity (220 km/s) of stars around the sun; the so called "Local Standard of Rest"
-# and the peculiar motion of the Sun with respect to them:
-# (U,V,W) = [11.1, 12.24, 7.25]*u.km/u.s from Schoenrich et al. (2010): http://adsabs.harvard.edu/abs/2010MNRAS.403.1829S
+# astropy has its own default values, but we have actual measurements that we can use:
+
+r_sun_galactic_centre = 8.178*u.kpc # Gravity Collaboration, 2019, A&A, 625, 10
+phi_sun_galactic_centre = 0.0*u.rad # This is just for completeness
+z_sun_galactic_plane = 25.0*u.pc # Bland-Hawthorn & Gerhard, 2016, ARA&A, 54, 529
+
+# We define the restframe along the line between Sun and Galactic Centre, that actually is on the Galactic plane (so just a bit below the Sun)
+# That area is the Local Standard of Rest and moves with the circular velocity of the Galaxy at that distance.
+
+# Reid & Brunthaler (2004, ApJ, 616, 872) have further measured the total angular motion of the Sun with respect to the Galactic Centre
+v_total_sun = (np.tan(6.379*u.mas)*r_sun_galactic_centre/u.yr).to(u.km/u.s) # pm_l by Reid & Brunthaler 2004, ApJ, 616, 872
+# And Schoenrich, Binney and Dehnen (2010, MNRAS, 403, 1829) have measured the motion of the Sun relative to the Local Standard of Rest
+v_peculiar = [11.1, 12.24, 7.25]*u.km/u.s # U and W from Schoenrich, Binney, Dehnen, 2010, MNRAS, 403, 1829, V so that V = V_total-V_sun
+# We can therefore find the Solar motion as
+galcen_v_sun = [11.1, v_total_sun.value, 7.25]*u.km/u.s
+print(galcen_v_sun)
 
 # Let's define the Galactocentric Reference Frame, but use our better value of the Distance
 galactocentric_frame= coord.Galactocentric(
-     galcen_distance=8.178*u.kpc # Gravity Collaboration et al. (2019): https://ui.adsabs.harvard.edu/abs/2019A&A...625L..10G
+    galcen_distance=r_sun_galactic_centre,
+    galcen_v_sun=coord.CartesianDifferential(galcen_v_sun),
+    z_sun=z_sun_galactic_plane
 )
 
 # Now let's transform the coordinates to the Galactocentric Cartesian Frame (X,Y,Z) relative to the Galactic Centre
