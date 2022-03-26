@@ -142,6 +142,23 @@ coordinates = coord.SkyCoord(
     # (RA,Dec) = (266.4051, -28.936175) deg
 )
 
+
+# Now these coordinates and velocities are not relative to the Galactic Centre, but to Equatorial Coordinate System. In this system, a star's position is described with (RA,Dec,Distance) with respect to the Sun.
+# 
+# So let's transform this coordinate system into a more useful one, namely a Galactocentric one.
+# In this coordinate system, we will be able to describe a stars position with (R,phi,z) with respect to the Galactic Centre and Plane.
+# 
+# In order to transform the coordinates, we need to know some important parameters:
+# 1) Where is the Galactic Centre in (RA,Dec)?  
+# 2) How far is the Sun away from the Galactic Centre?  
+# 3) How does the Sun move relative to the Galactocentric Rest Frame?
+# 
+# Luckily, we can rely on measurements or definitions of certain frames.  
+# For example, per current definition, the Galactic Centre is at (RA,Dec) = (266.4051, -28.936175)
+
+# In[8]:
+
+
 # In addition to the position of the Galactic Centre in (RA,Dec), we also have to give some information
 # on the position and motion of the Sun relative to it
 # astropy has its own default values, but we have actual measurements that we can use:
@@ -150,8 +167,16 @@ r_sun_galactic_centre = 8.178*u.kpc # Gravity Collaboration, 2019, A&A, 625, 10
 phi_sun_galactic_centre = 0.0*u.rad # This is just for completeness
 z_sun_galactic_plane = 25.0*u.pc # Bland-Hawthorn & Gerhard, 2016, ARA&A, 54, 529
 
+
+# The last piece of information that we need, is the motion of the Sun relative to Galactocentric Rest Frame.
 # We define the restframe along the line between Sun and Galactic Centre, that actually is on the Galactic plane (so just a bit below the Sun)
+# 
 # That area is the Local Standard of Rest and moves with the circular velocity of the Galaxy at that distance.
+# 
+# <img src="f2503-LSR.JPG" alt="drawing" width=50%/>
+
+# In[9]:
+
 
 # Reid & Brunthaler (2004, ApJ, 616, 872) have further measured the total angular motion of the Sun with respect to the Galactic Centre
 v_total_sun = (np.tan(6.379*u.mas)*r_sun_galactic_centre/u.yr).to(u.km/u.s) # pm_l by Reid & Brunthaler 2004, ApJ, 616, 872
@@ -194,7 +219,7 @@ galcen_coordinates.representation_type = 'cylindrical'
 print(galcen_coordinates)
 
 
-# In[8]:
+# In[10]:
 
 
 # Let's save the values in the correct units
@@ -211,7 +236,7 @@ vz_kms = galcen_coordinates.d_z.to(u.km/u.s).value
 
 # a) Let's have a first look at the rotational velocity curve (Galactocentric radius R_kpc and rotational velocity vT_kms)
 
-# In[9]:
+# In[11]:
 
 
 plt.figure(figsize=(15,5))
@@ -235,7 +260,7 @@ plt.tight_layout()
 
 # b) Let's loop over bins of Galactocentric radius and calculate the median and overplot it
 
-# In[10]:
+# In[12]:
 
 
 plt.figure(figsize=(15,5))
@@ -312,7 +337,7 @@ plt.tight_layout()
 
 # a) Iron abundance [Fe/H] versus Magnesium Abundance [Mg/Fe]: Tracing Star formation intensity and the ratio of Supernovae Type Ia and II
 
-# In[11]:
+# In[13]:
 
 
 plt.hist2d(
@@ -328,13 +353,13 @@ plt.tight_layout()
 
 # b) How does this look like for [Fe/H] vs. [Al/Fe] and [Fe/H] vs. [Mn/Fe]?
 
-# In[12]:
+# In[14]:
 
 
 # Plot Here the result for [Fe/H] vs. [Al/Fe]
 
 
-# In[13]:
+# In[15]:
 
 
 # Plot Here the result for [Fe/H] vs. [Mn/Fe]
@@ -349,7 +374,7 @@ plt.tight_layout()
 # 
 # So how does a diagram look like, where we plot [Al/Fe] versus the ratio [Mg/Mn] (and how do we best compute [Mg/Mn] in the first place)?
 
-# In[14]:
+# In[16]:
 
 
 # Plot Here the result for [Al/Fe] vs. [Mg/Mn]
@@ -367,7 +392,7 @@ plt.tight_layout()
 # 
 # So I think it's time to do this plot again!
 
-# In[15]:
+# In[17]:
 
 
 # Plot Here the result for [Fe/H] vs. [Mg/Fe] in bins of the same bins as Hayden et al. (2015).
@@ -400,7 +425,7 @@ ax.axhline(0,lw=1.5)
 ax.axvline(0,lw=1.5)
 
 
-# In[16]:
+# In[18]:
 
 
 # Hint: You can automate this process, by looping through 2 for-loops. Note: 
@@ -429,13 +454,13 @@ for R_index,(R_min,R_max) in enumerate(zip([3,5,7,9,11,13],[5,7,9,11,13,15])):
             ax.set_xlabel('[Fe/H]')
 
 
-# In[17]:
+# In[19]:
 
 
 # If you are way ahead of time, feel free to replicate the same plots, but with [Fe/H] vs. [Al/Fe]
 
 
-# In[18]:
+# In[20]:
 
 
 # If you are way ahead of time, feel free to replicate the same plots, but with [Fe/H] vs. [Mn/Fe]
