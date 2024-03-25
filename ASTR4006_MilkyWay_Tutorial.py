@@ -2,7 +2,7 @@
 # coding: utf-8
 
 # # ASTR4006 Tutorial (Tuesday 26 March 2024):
-# ## Chemistry and Dynamics of the Milky Way
+# ## Chemistry and Kinematics/Dynamics of the Milky Way
 # 
 # This notebook needs to be in the same location as the FITS-file "APOGEE_DR17_Tutorial.fits"
 # 
@@ -472,9 +472,9 @@ for R_index,(R_min,R_max) in enumerate(zip([3,5,7,9,11,13],[5,7,9,11,13,15])):
 # If you are way ahead of time, feel free to replicate the same plots, but with [Fe/H] vs. [Mn/Fe]
 
 
-# # Part 6: Chemodynamics of the Milky Way
+# # Part 6: Chemokinematics of the Milky Way
 
-# For the last part of our tutorial, we will try to understand the dynamics of the Milky Way when looking at chemically different populations.
+# For the last part of our tutorial, we will try to understand the kinematics of the Milky Way when looking at chemically different populations.
 # 
 # Remember our plot of [Al/Fe] vs. [Mg/Mn]? This is how it looked like when [Das et al. (2020)](https://ui.adsabs.harvard.edu/abs/2020MNRAS.493.5195D) worked on a slightly earlier version of the data:
 #     
@@ -528,7 +528,7 @@ plt.tight_layout()
 # In[22]:
 
 
-# Now let's look at some of the dynamic quantities:
+# Now let's look at some of the kinematic quantities:
 
 f, gs = plt.subplots(1,3,figsize=(14,4))
 panels = ['a)','b)','c)']
@@ -551,4 +551,76 @@ for overdensity_index, overdensity in enumerate(overdensities.keys()):
 plt.tight_layout()
 
 
-# # What can you infer about the orbits of these three chemical overdensities based on these dynamic plots?
+# ### What can you infer about the orbits of these three chemical overdensities based on these dynamic plots?
+
+# # Part 7: Chemodynamics of the Milky Way
+# 
+# Let's switch from the kinematic frame to the dynamic (for which we assume a model potential of the Milky Way, in which we will approximate the orbits of stars and calculate actions, so called integrals of motion in dimensions R, phi, and Z, that is, J_R, J_phi, and J_Z.
+
+# In[23]:
+
+
+# This only works if we have galpy installed!
+try:    
+    from galpy.orbit import Orbit
+    from galpy.potential import MWPotential2014
+    from galpy.actionAngle import actionAngleStaeckel
+    aAS = actionAngleStaeckel(
+            pot   = MWPotential2014, #potential                                                                                                                                                                      
+            delta = 0.45,            #focal length of confocal coordinate system                                                                                                                            
+            c     = True             #use C code (for speed)                                                                                                                                                         
+            )
+
+    R = R_kpc*u.kpc
+    vR = vR_kms*u.km/u.s
+    vT = vT_kms*u.km/u.s
+    z = z_kpc*u.kpc
+    vz = vz_kms*u.km/u.s
+    phi = phi_rad*u.rad
+
+    # Now we can calculate the radial action, azimuthal action (== angular momentum in an axisymmetric potential), and vertical action
+    jr,lz,jz= aAS(
+        R,vR,vT,z,vz,
+        ro=8*u.kpc,vo=220*u.km/u.s
+    )
+    print('Calculated actions as jr, lz, jz')
+except:
+    print('Could not import galpy and calculate actions...')
+
+
+# In[24]:
+
+
+# This will only work if the previous cell executed succesfully
+f, gs = plt.subplots(1,2,figsize=(10,4))
+
+ax = gs[0]
+ax.text(0.05,0.95,panels[0]+' all stars',transform=ax.transAxes, fontsize=15, va='top', ha='left',bbox=dict(boxstyle='round', facecolor='w'))
+ax.hist2d(
+    lz,
+    np.sqrt(jr),
+    bins =100,
+    cmin = 1, norm=LogNorm()
+);
+ax.set_xlabel(r'$L_Z~/~\,\mathrm{kpc\,km\,s^{-1}}$',fontsize=20)
+ax.set_ylabel(r'$\sqrt{J_R~/~\,\mathrm{kpc\,km\,s^{-1}}}$',fontsize=20)
+
+ax = gs[1]
+ax.text(0.05,0.95,panels[1]+' (zoomed in)',transform=ax.transAxes, fontsize=15, va='top', ha='left',bbox=dict(boxstyle='round', facecolor='w'))
+ax.hist2d(
+    lz,
+    np.sqrt(jr),
+    bins =(np.linspace(-2000,5000,200),np.linspace(-1,60,200)),
+    cmin = 1, norm=LogNorm()
+);
+ax.set_xlabel(r'$L_Z~/~\,\mathrm{kpc\,km\,s^{-1}}$',fontsize=20)
+ax.set_ylabel(r'$\sqrt{J_R~/~\,\mathrm{kpc\,km\,s^{-1}}}$',fontsize=20)
+
+plt.tight_layout()
+
+
+# ## Questions:
+# 
+# ### What's going on with the stars with high J_R?
+# 
+# ### Why is this frame possibly preferable over the kinematic one?
