@@ -489,15 +489,15 @@ for R_index,(R_min,R_max) in enumerate(zip([3,5,7,9,11,13],[5,7,9,11,13,15])):
 
 # Let's look at the three overdensities separately
 overdensities = dict()
-overdensities['low_mgmn'] = (
+overdensities['solar_mgmn'] = (
     (apogee['AL_FE'] > -0.1) &
     (apogee['MG_FE'] - apogee['MN_FE'] < 0.25)
 )
-overdensities['high_alfe_high_mnmn'] = (
+overdensities['high_alfe_high_mgmn'] = (
     (apogee['AL_FE'] > 0.0) &
     (apogee['MG_FE'] - apogee['MN_FE'] > 0.25)
 )
-overdensities['low_alfe_high_mnmn'] = (
+overdensities['low_alfe_high_mgmn'] = (
     (apogee['AL_FE'] < -0.10) &
     (apogee['MG_FE'] - apogee['MN_FE'] > 0.30)
 )
