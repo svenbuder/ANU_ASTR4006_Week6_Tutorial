@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # ASTR4006 Tutorial (Monday 28 March 2020):
+# # ASTR4006 Tutorial (Tuesday 26 March 2024):
 # ## Chemistry and Dynamics of the Milky Way
 # 
 # This notebook needs to be in the same location as the FITS-file "APOGEE_DR17_Tutorial.fits"
@@ -173,7 +173,9 @@ z_sun_galactic_plane = 25.0*u.pc # Bland-Hawthorn & Gerhard, 2016, ARA&A, 54, 52
 # 
 # That area is the Local Standard of Rest and moves with the circular velocity of the Galaxy at that distance.
 # 
-# <img src="f2503-LSR.JPG" alt="drawing" width=50%/>
+# <img src="figures/Karttunen_Springer_2007fuas.conf.....K_Fig17_5.png" alt="drawing" width=50%/>
+# 
+# **Figure**: Visualisation of the Local Standard of Rest (LSR) by Karttunen et al. (2007): Fundamental Astronomy, Edited by H. Karttunen, P. Krüger, H. Oja, M. Poutanen, and K.J. Donner. Berlin: Springer. 
 
 # In[9]:
 
@@ -287,7 +289,7 @@ for R_bin in R_bins:
 plt.scatter(
     R_bins,
     median_v_rot,
-    label = 'Median Velocity'
+    label = 'Median Velocity', color = 'C1'
 )
     
 # We can even try to get an idea of the distribution of velocities in each bin with np.percentile.
@@ -312,7 +314,7 @@ plt.errorbar(
     ],
     capsize=5,
     fmt = 'o',
-    label = '1-Sigma Distribution'
+    label = '1-Sigma Distribution', color = 'C1'
 )
     
 colorbar = plt.colorbar(h[-1])
@@ -323,7 +325,11 @@ plt.legend()
 plt.tight_layout()
 
 
-# If you want to learn more about this, I highly recommend to read Eiler et al. (2019): http://adsabs.harvard.edu/abs/2019ApJ...871..120E
+# If you want to learn more about this, I highly recommend to read [Eilers et al. (2019)](http://adsabs.harvard.edu/abs/2019ApJ...871..120E):
+# 
+# <img src="figures/Eilers_2019ApJ...871..120E_Fig3.png" alt="drawing" width=50%/>
+# 
+# **Figure**: New measurements of the circular velocity curve of the Milky Way by Eilers et al. (2019)
 
 # ## Part 4: Abundances of Milky Way Stars
 
@@ -384,7 +390,7 @@ plt.tight_layout()
 
 # # Part 5: Distribution of stars in [Fe/H] vs. [Mg/Fe] across the Galaxy
 
-# In the lecture, I showed you the plot by Hayden et al. (2015), made with 70,000 stars (http://adsabs.harvard.edu/abs/2015ApJ...808..132H).
+# In the lecture, I showed you the plot by [Hayden et al. (2015)](http://adsabs.harvard.edu/abs/2015ApJ...808..132H), made with 70,000 stars.
 
 # ![Screen%20Shot%202022-03-26%20at%2012.52.53%20pm.png](attachment:Screen%20Shot%202022-03-26%20at%2012.52.53%20pm.png)
 
@@ -465,3 +471,84 @@ for R_index,(R_min,R_max) in enumerate(zip([3,5,7,9,11,13],[5,7,9,11,13,15])):
 
 # If you are way ahead of time, feel free to replicate the same plots, but with [Fe/H] vs. [Mn/Fe]
 
+
+# # Part 6: Chemodynamics of the Milky Way
+
+# For the last part of our tutorial, we will try to understand the dynamics of the Milky Way when looking at chemically different populations.
+# 
+# Remember our plot of [Al/Fe] vs. [Mg/Mn]? This is how it looked like when [Das et al. (2020)](https://ui.adsabs.harvard.edu/abs/2020MNRAS.493.5195D) worked on a slightly earlier version of the data:
+#     
+# <img src="figures/Das_2020MNRAS.493.5195D_Fig3d.png" alt="drawing" width=50%/>
+# 
+# **Figure**: [Al/Fe] vs. [Mg/Mn] abundances of APOGEE DR14 by Das et al. (2020)
+#     
+#     
+
+# In[21]:
+
+
+# Let's look at the three overdensities separately
+overdensities = dict()
+overdensities['low_mgmn'] = (
+    (apogee['AL_FE'] > -0.1) &
+    (apogee['MG_FE'] - apogee['MN_FE'] < 0.25)
+)
+overdensities['high_alfe_high_mnmn'] = (
+    (apogee['AL_FE'] > 0.0) &
+    (apogee['MG_FE'] - apogee['MN_FE'] > 0.25)
+)
+overdensities['low_alfe_high_mnmn'] = (
+    (apogee['AL_FE'] < -0.10) &
+    (apogee['MG_FE'] - apogee['MN_FE'] > 0.30)
+)
+
+# Let's look at our selection of stars in the [Al/Fe] vs. [Mg/Mn] plane
+
+f, gs = plt.subplots(1,3,figsize=(14,4))
+panels = ['a)','b)','c)']
+
+for overdensity_index, overdensity in enumerate(overdensities.keys()):
+    
+    ax = gs[overdensity_index]
+    ax.text(0.05,0.95,panels[overdensity_index]+' '+overdensity,transform=ax.transAxes, fontsize=15, va='top', ha='left',bbox=dict(boxstyle='round', facecolor='w'))
+    
+    ax.hist2d(
+        apogee['AL_FE'][overdensities[overdensity]],
+        apogee['MG_FE'][overdensities[overdensity]] - apogee['MN_FE'][overdensities[overdensity]],
+        bins = (np.linspace(-1,1,100),np.linspace(-0.75,1.25,100)),
+        cmin = 1, cmap = 'Oranges', norm=LogNorm()
+    )
+    ax.set_xlabel(r'[Al/Fe]',fontsize=20)
+    ax.set_ylabel(r'[Mg/Mn]',fontsize=20)
+    ax.axhline(0,c='k',ls='dashed',lw=1)
+    ax.axvline(0,c='k',ls='dashed',lw=1)
+plt.tight_layout()
+
+
+# In[22]:
+
+
+# Now let's look at some of the dynamic quantities:
+
+f, gs = plt.subplots(1,3,figsize=(14,4))
+panels = ['a)','b)','c)']
+
+for overdensity_index, overdensity in enumerate(overdensities.keys()):
+    
+    ax = gs[overdensity_index]
+    ax.text(0.05,0.95,panels[overdensity_index]+' '+overdensity,transform=ax.transAxes, fontsize=15, va='top', ha='left',bbox=dict(boxstyle='round', facecolor='w'))
+    
+    ax.hist2d(
+        vR_kms[overdensities[overdensity]],
+        vT_kms[overdensities[overdensity]],
+        bins = (np.linspace(-400,400,100),np.linspace(-200,400,100)),
+        cmin = 1, cmap = 'Oranges', norm=LogNorm()
+    )
+    ax.set_xlabel(r'$V_R~/~\,\mathrm{km\,s^{-1}}$',fontsize=20)
+    ax.set_ylabel(r'$V_\phi~/~\,\mathrm{km\,s^{-1}}$',fontsize=20)
+    ax.axhline(0,c='k',ls='dashed',lw=1)
+    ax.axvline(0,c='k',ls='dashed',lw=1)
+plt.tight_layout()
+
+
+# # What can you infer about the orbits of these three chemical overdensities based on these dynamic plots?
