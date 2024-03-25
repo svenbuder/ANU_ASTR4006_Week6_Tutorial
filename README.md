@@ -1,4 +1,4 @@
-# ASTR4006 Tutorial (Monday 28 March 2020): Chemistry and Dynamics of the Milky Way
+# ASTR4006 Tutorial (Tuesday 26 March 2024): Chemistry and Dynamics of the Milky Way
 
 This Tutorial incldues 2 files that you need to download to your computer:
 - APOGEE_DR17_Tutorial.fits
