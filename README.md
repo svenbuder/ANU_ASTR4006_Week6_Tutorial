@@ -15,3 +15,4 @@ Python packages used in the notebook:
 - astropy
 - matplotlib
 - galpy (optional)
+# astr4006_2026_w6l1_tutorial
